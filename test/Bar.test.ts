@@ -1,4 +1,5 @@
 import { Bar } from 'index';
+import { cloneDeep } from 'lodash';
 
 /**
  * Bar test
@@ -6,7 +7,7 @@ import { Bar } from 'index';
 describe('Bar test', () => {
 
     test('works if true is truthy', () => {
-        expect(true).toBeTruthy();
+        expect(cloneDeep(true)).toBeTruthy();
     });
 
     test('Bar is instantiable', () => {

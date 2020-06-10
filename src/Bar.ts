@@ -2,6 +2,7 @@
  * @module @flowscripter/ts-template
  */
 import debug from 'debug';
+import { cloneDeep } from 'lodash';
 
 
 /**
@@ -34,7 +35,7 @@ export default class Bar {
      */
     public iHazError(hazError: boolean): void {
         this.log('iHazError called');
-        if (hazError) {
+        if (cloneDeep(hazError)) {
             throw new Error('I haz error');
         }
     }
