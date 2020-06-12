@@ -1,14 +1,14 @@
 {
-    "name": "@flowscripter/ts-template",
+    "name": "@flowscripter/runtime",
     "version": "0.0.0",
-    "description": "Template TypeScript project.",
+    "description": "Flowscripter Runtime.",
     "repository": {
         "type": "git",
-        "url": "https://github.com/flowscripter/ts-template"
+        "url": "https://github.com/flowscripter/runtime"
     },
-    "homepage": "https://github.com/flowscripter/ts-template",
+    "homepage": "https://github.com/flowscripter/runtime",
     "bugs": {
-        "url": "https://github.com/flowscripter/ts-template/issues"
+        "url": "https://github.com/flowscripter/runtime/issues"
     },
     "keywords": [
         "typescript"
@@ -25,7 +25,6 @@
         "access": "public"
     },
     "main": "dist/node.js",
-    "browser": "dist/browser.js",
     "type": "module",
     "files": [
         "dist/**/*"
@@ -77,5 +76,8 @@
     "peerDependencies": {
         "debug": "4.1.1"
     },
-    "dependencies": {}
+    "dependencies": {
+        "@types/lodash": "^4.14.155",
+        "lodash": "^4.17.15"
+    }
 }
