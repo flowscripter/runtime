@@ -1,0 +1,64 @@
+@startuml
+
+skinparam {
+    shadowing false
+    CircledCharacterFontSize 8
+    ClassBackgroundColor #FFF
+    ClassArrowColor #666
+    ClassBorderColor #666
+    PackageBorderColor #AAA
+    ClassBorderThickness 2
+    PackageBackgroundColor #EEE
+    PackageTitleAlignment right
+    PackageFontSize 12
+    ClassFontStyle bold
+    ClassFontSize 12
+    ArrowFontSize 12
+    ArrowThickness 2
+    Padding 5
+    linetype polyline
+}
+
+hide empty members
+hide circle
+
+together {
+package esm-dynamic-plugins <<Rectangle>> {
+    interface PluginManager <<interface>>
+}
+
+package plugin-api <<Rectangle>> {
+    interface Registry <<interface>>
+    interface DatastoreManager <<interface>>
+    interface SessionManager <<interface>>
+    interface RuntimeContext <<interface>>
+    interface ConfigParameters <<interface>>
+    interface Runtime <<interface>>
+}
+}
+package runtime <<Rectangle>> {
+    class BaseRuntime
+    class NodeRuntime
+    class InMemoryRegistry
+    class InMemorySessionManager
+    class InMemoryDatastoreManager
+    class NodeRuntimeContext
+}
+
+RuntimeContext -right-> SessionManager
+RuntimeContext -right-> DatastoreManager
+RuntimeContext -right-> Registry
+
+Runtime <|.. BaseRuntime
+BaseRuntime <|-- NodeRuntime
+BaseRuntime --> ConfigParameters
+BaseRuntime --> RuntimeContext
+BaseRuntime -left-> PluginManager
+
+RuntimeContext <|.. NodeRuntimeContext
+
+Registry <|.. InMemoryRegistry
+DatastoreManager <|.. InMemoryDatastoreManager
+SessionManager <|.. InMemorySessionManager
+
+@enduml

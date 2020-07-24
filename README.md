@@ -11,8 +11,11 @@
 
 This project provides a Runtime for the Flowscripter system.
 
-**This is a work in progress**
+The following high level class diagram illustrates the key concepts:
 
+![High Level Class Diagram](images/high_level_class_diagram.png "High Level Class Diagram")
+
+**This is a work in progress**
 
 ## Development
 
@@ -32,9 +35,11 @@ Test: `npm test`
 
 Lint: `npm run lint`
 
+Docs: `npm run docs`
+
 ## API
 
-[API documentation](https://flowscripter.github.io/ts-template)
+[API documentation](https://flowscripter.github.io/runtime)
 
 ## Further Details
 
