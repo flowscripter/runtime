@@ -22,7 +22,10 @@ module.exports = [
         external: [
             'path',
             'fs',
-            'crypto'
+            'crypto',
+            'util',
+            'tty',
+            'os'
         ],
         plugins: [
             peerDepsExternal(),

@@ -5,11 +5,14 @@
     ],
     "testEnvironment": "node",
     "testMatch": [
-        "**/?(*.)test.ts"
+        "**/test/**/?(*.)test.ts"
     ],
     "transform": {
-        "\\.ts$": "ts-jest"
+        "\\.(j|t)s$": "ts-jest"
     },
+    "transformIgnorePatterns": [
+        "node_modules/(?!(@flowscripter)/)"
+    ],
     "modulePaths": [
         "src"
     ],
@@ -19,5 +22,16 @@
     "collectCoverageFrom": [
         "src/**/*.ts"
     ],
-    "coverageDirectory": "reports"
+    "coverageDirectory": "reports",
+    "globals": {
+        "ts-jest": {
+            "babelConfig": {
+                "plugins": [
+                    "transform-es2015-modules-commonjs",
+                    "transform-dynamic-import"
+                ]
+            },
+            "isolatedModules": true
+        }
+    }
 }
