@@ -61,7 +61,7 @@
         "jest": "26.0.1",
         "plantuml-proxy-cli": "1.0.4",
         "rimraf": "3.0.2",
-        "rollup": "2.15.0",
+        "rollup": "2.80.0",
         "rollup-plugin-cleanup": "3.1.1",
         "rollup-plugin-commonjs": "10.1.0",
         "rollup-plugin-node-builtins": "2.1.2",
