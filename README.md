@@ -1,50 +1,71 @@
 # runtime
-[![license](https://img.shields.io/github/license/flowscripter/runtime.svg)](https://github.com/flowscripter/runtime/blob/master/LICENSE)
-[![dependencies](https://img.shields.io/david/flowscripter/runtime.svg)](https://david-dm.org/flowscripter/runtime)
-[![travis](https://api.travis-ci.com/flowscripter/runtime.svg)](https://travis-ci.com/flowscripter/runtime)
-[![coverage](https://sonarcloud.io/api/project_badges/measure?project=flowscripter_runtime&metric=coverage)](https://sonarcloud.io/dashboard?id=flowscripter_runtime)
-[![npm](https://img.shields.io/npm/v/@flowscripter/runtime.svg)](https://www.npmjs.com/package/@flowscripter/runtime)
 
-> Flowscripter Runtime.
+[![version](https://img.shields.io/github/v/release/flowscripter/runtime?sort=semver)](https://github.com/flowscripter/runtime/releases)
+[![build](https://img.shields.io/github/actions/workflow/status/flowscripter/runtime/release-bun-library.yml)](https://github.com/flowscripter/runtime/actions/workflows/release-bun-library.yml)
+[![coverage](https://codecov.io/gh/flowscripter/runtime/graph/badge.svg?token=uWK0oWsBjr)](https://codecov.io/gh/flowscripter/runtime)
+[![docs](https://img.shields.io/badge/docs-API-blue)](https://flowscripter.github.io/runtime/index.html)
+[![license: MIT](https://img.shields.io/github/license/flowscripter/runtime)](https://github.com/flowscripter/runtime/blob/main/LICENSE)
 
-## Overview
+> Flowscripter runtime library
 
-This project provides a Runtime for the Flowscripter system.
+> Work in progress.
 
-The following high level class diagram illustrates the key concepts:
+## Bun Module Usage
 
-![High Level Class Diagram](images/high_level_class_diagram.png "High Level Class Diagram")
+Add the module:
 
-**This is a work in progress**
+`bun add @flowscripter/runtime`
+
+Use the module:
+
+```typescript
+import { world } from "@flowscripter/runtime";
+
+world();
+```
 
 ## Development
 
-Firstly:
+Install dependencies:
 
+`bun install`
+
+Build (produces `dist/` for Node.js and TypeScript consumers; Bun uses raw source directly):
+
+`bun run build`
+
+Test:
+
+`bun test`
+
+Format:
+
+`bunx oxfmt`
+
+Lint:
+
+`bunx oxlint index.ts src/ tests/`
+
+Generate HTML API Documentation:
+
+`bunx typedoc index.ts`
+
+## Documentation
+
+### Overview
+
+Sample mermaid diagram to test rendering in markdown:
+
+```mermaid
+classDiagram
+    Foo <|-- Bar
 ```
-npm install
-```
 
-then:
+### API
 
-Build: `npm run build`
+Link to auto-generated API docs:
 
-Watch: `npm run watch`
-
-Test: `npm test`
-
-Lint: `npm run lint`
-
-Docs: `npm run docs`
-
-## API
-
-[API documentation](https://flowscripter.github.io/runtime)
-
-## Further Details
-
-Further details on project configuration files and Javascript version support can be found in
-the [template for this project](https://github.com/flowscripter/ts-template/blob/master/README.md#overview).
+[API Documentation](https://flowscripter.github.io/runtime/index.html)
 
 ## License
 
