@@ -19,9 +19,17 @@ Add the module:
 Use the module:
 
 ```typescript
-import { world } from "@flowscripter/runtime";
+import { createRuntime } from "@flowscripter/runtime";
 
-world();
+const runtime = createRuntime({
+  config: { logLevel: "info", components: { myComponent: { retries: 3 } } },
+  logger, // optional: a plugin-api Logger
+  output, // optional: a plugin-api Output
+  onProgress: (event) => {},
+  onMetric: (event) => {},
+});
+
+runtime.updateConfig({ logLevel: "debug" });
 ```
 
 ## Development
@@ -54,12 +62,14 @@ Generate HTML API Documentation:
 
 ### Overview
 
-Sample mermaid diagram to test rendering in markdown:
+`createRuntime(options)` returns an independent runtime instance with no module-level state and no platform-specific imports, so it runs under Bun and in browsers. The host supplies an already parsed config object and the `Logger`, `Output`, progress and metric sinks defined in `@flowscripter/plugin-api`.
 
-```mermaid
-classDiagram
-    Foo <|-- Bar
-```
+- Log level comes from `config.logLevel` (`debug`, `info`, `warn`, `error`, `silent`; default `info`) and is applied by the runtime before the host logger is called.
+- `updateConfig` replaces the whole config. Listeners registered with `onConfigChange` receive the new and previous config, and only when something changed.
+- Component config is returned opaque by `getComponentConfig(handle)`; each component validates its own config.
+- Unknown top-level config keys are ignored with a single warning.
+- Failures in host supplied loggers, outputs, callbacks and listeners never propagate to the caller.
+- `runtime.context` is the `RuntimeContext` passed to components. It requires the `session`, `registry`, `datastoreManager` and `sessionManager` options.
 
 ### API
 
