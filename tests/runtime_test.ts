@@ -162,6 +162,12 @@ describe("config", () => {
     }
   });
 
+  test("primitive values are preserved", () => {
+    const value = { n: 1.5, s: "x", b: true, z: null };
+    const runtime = createRuntime({ config: { components: { a: value } } });
+    expect(runtime.getComponentConfig("a")).toEqual(value);
+  });
+
   test("circular component values are rejected", () => {
     const a: Record<string, unknown> = {};
     a.self = a;
