@@ -5,7 +5,7 @@
     "": {
       "name": "@flowscripter/runtime",
       "devDependencies": {
-        "@flowscripter/plugin-api": "^2.0.1",
+        "@flowscripter/plugin-api": "^2.0.2",
         "@types/bun": "^1.4.4",
         "oxfmt": "0.75.0",
         "oxlint": "1.90.0",
@@ -17,11 +17,11 @@
     },
   },
   "packages": {
-    "@flowscripter/dynamic-cli-framework-api": ["@flowscripter/dynamic-cli-framework-api@5.1.4", "", { "peerDependencies": { "typescript": "^7.0.2" } }, "sha512-eUBLV3YsW4eiw1ytYMZjvAecgMS9RM8sxyZIk0HL+LhczWRpHdvSQyYlHYTkawo0r6GeULVphuQgKUOaz2FIOg=="],
+    "@flowscripter/dynamic-cli-framework-api": ["@flowscripter/dynamic-cli-framework-api@5.1.5", "", { "peerDependencies": { "typescript": "^7.0.2" } }, "sha512-cqQryzyoBY0YX/hEeGbo0cZtzDqJ3seO9ZB4YKDf+PHCR7dSjVfbEl6i9vHVlvBUybzHbCf1BBVbkExzDn7E5w=="],
 
-    "@flowscripter/dynamic-plugin-framework": ["@flowscripter/dynamic-plugin-framework@2.3.3", "", { "dependencies": { "semver": "^7.8.5" }, "peerDependencies": { "typescript": "^7.0.2" } }, "sha512-AWfHcYoUyWe19KK26NiBVBxmNMbs7d8vZWpZpBEMvljroFad55JLd7kivq2kDarBmI1Sbq2dxc5D9YA7xUK4Lg=="],
+    "@flowscripter/dynamic-plugin-framework": ["@flowscripter/dynamic-plugin-framework@2.3.4", "", { "dependencies": { "semver": "^7.8.5" }, "peerDependencies": { "typescript": "^7.0.2" } }, "sha512-7zpMYhMfm0NDjkXxx0vwj9cJ7exCmbRvtAJ55q2WQthspaFHs4k4NxbwNbW4Gq1FGHBQCv7UB/XJ9dpWfa9y1A=="],
 
-    "@flowscripter/plugin-api": ["@flowscripter/plugin-api@2.0.1", "", { "dependencies": { "@flowscripter/dynamic-cli-framework-api": "^5.1.3", "@flowscripter/dynamic-plugin-framework": "^2.3.2" }, "peerDependencies": { "typescript": "^7.0.2" } }, "sha512-4jiPUOh+OZUbbRxpDxzsN4U8UabIxoT6ej+9p52xD0Xd2Jwqy18v30sHzvMuUNlUJk33jPj6Cf26rV6/yCGGTQ=="],
+    "@flowscripter/plugin-api": ["@flowscripter/plugin-api@2.0.2", "", { "dependencies": { "@flowscripter/dynamic-cli-framework-api": "^5.1.4", "@flowscripter/dynamic-plugin-framework": "^2.3.3" }, "peerDependencies": { "typescript": "^7.0.2" } }, "sha512-J2a2Bs0o73iXyquf5Vh3CoLf6KohRHL4ZjazjYixGSalTYhRTOeCwzrG9NHlEgSKzRbBUddL9PusS6fC9nRf6g=="],
 
     "@oxfmt/binding-android-arm-eabi": ["@oxfmt/binding-android-arm-eabi@0.75.0", "", { "os": "android", "cpu": "arm" }, "sha512-zHJ7LcTN46/5mtoLxsUu14pdF9ixFwDURtmxZ0CeNwqom5qB5NRVqU6o2GRZ7QPdNBW8G6j9UTJzQ+EDevMH0w=="],
 

@@ -38,7 +38,7 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
-    "@flowscripter/plugin-api": "^2.0.1",
+    "@flowscripter/plugin-api": "^2.0.2",
     "@types/bun": "^1.4.4",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0"
