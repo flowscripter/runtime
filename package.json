@@ -1,6 +1,6 @@
 {
   "name": "@flowscripter/runtime",
-  "version": "1.2.0",
+  "version": "1.2.9",
   "description": "Flowscripter runtime library",
   "keywords": [
     "bun",
@@ -38,10 +38,10 @@
     "build": "tsc -p tsconfig.build.json"
   },
   "devDependencies": {
-    "@flowscripter/plugin-api": "^2.0.0",
-    "@types/bun": "^1.4.3",
-    "oxfmt": "0.74.0",
-    "oxlint": "1.89.0"
+    "@flowscripter/plugin-api": "^2.0.9",
+    "@types/bun": "^1.4.5",
+    "oxfmt": "0.80.0",
+    "oxlint": "1.95.0"
   },
   "peerDependencies": {
     "@flowscripter/plugin-api": "^2.0.0",
