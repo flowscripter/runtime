@@ -1,18 +1,20 @@
 import type {
-  DatastoreManager,
+  FlowscripterComponent,
   LogFields,
   Logger,
   LogLevel,
   MetricEvent,
   Output,
   ProgressEvent,
-  Registry,
   RuntimeContext,
   Session,
-  SessionManager,
   StructuredValue,
 } from "@flowscripter/plugin-api";
 import { deepEqual, resolveConfig } from "./config.ts";
+import { createMemoryDatastore } from "./data.ts";
+import { createComponentRegistry } from "./registry.ts";
+import type { ComponentKind } from "./registry.ts";
+import { createSession, createSessionManager } from "./session.ts";
 import type { RuntimeConfig } from "./config.ts";
 
 export type ConfigChangeListener = (
@@ -27,21 +29,29 @@ export interface RuntimeOptions {
   output?: Output;
   onProgress?: (event: ProgressEvent) => void;
   onMetric?: (event: MetricEvent) => void;
+  /** Adopted as the session "default"; an empty in-memory session is created if omitted. */
   session?: Session;
-  registry?: Registry;
-  datastoreManager?: DatastoreManager;
-  sessionManager?: SessionManager;
 }
+
+export const MEMORY_DATASTORE_HANDLE = "memory";
+export const DEFAULT_SESSION_HANDLE = "default";
 
 export interface Runtime {
   /** Level-filtered wrapper around the injected logger. */
   readonly logger: Logger;
   readonly output: Output;
-  /**
-   * The context passed to components. Throws if `session`, `registry`, `datastoreManager` or
-   * `sessionManager` were not supplied in {@link RuntimeOptions}.
-   */
+  /** The context passed to components, backed by in-memory defaults owned by this runtime. */
   readonly context: RuntimeContext;
+  /**
+   * Registers a component under a unique handle. Throws on an empty or duplicate handle, an
+   * unknown kind, or after `dispose()`.
+   */
+  registerComponent(handle: string, component: FlowscripterComponent, kind: ComponentKind): void;
+  /**
+   * Removes a component and calls its optional `dispose()`. Resolves false if the handle is
+   * unknown. A throwing `dispose()` is reported via the logger.
+   */
+  unregisterComponent(handle: string): Promise<boolean>;
   reportProgress(event: ProgressEvent): void;
   reportMetric(event: MetricEvent): void;
   getConfig(): Readonly<RuntimeConfig>;
@@ -50,7 +60,12 @@ export interface Runtime {
   updateConfig(next: RuntimeConfig): void;
   /** Returns an unsubscribe function. */
   onConfigChange(listener: ConfigChangeListener): () => void;
-  dispose(): void;
+  /**
+   * Stops accepting config changes and registrations, disposes registered components in reverse
+   * registration order (errors are logged and do not stop the others), then silences all sinks.
+   * Idempotent; the sync part runs before the first await.
+   */
+  dispose(): Promise<void>;
 }
 
 const LEVEL_RANK: Record<LogLevel, number> = {
@@ -71,17 +86,36 @@ function attempt(fn: () => void): void {
   }
 }
 
+// Returns a promise only when the component's dispose is asynchronous, so a runtime without
+// async components finishes disposal synchronously.
+function disposeComponent(
+  handle: string,
+  component: FlowscripterComponent,
+  logger: Logger,
+): Promise<void> | undefined {
+  const report = (cause: unknown) => logger.error("Component dispose threw", { handle }, cause);
+  try {
+    const result = component.dispose?.();
+    return result ? result.catch(report) : undefined;
+  } catch (cause) {
+    report(cause);
+    return undefined;
+  }
+}
+
 export function createRuntime(options: RuntimeOptions = {}): Runtime {
   const hostLogger = options.logger;
   const hostOutput = options.output;
   let disposed = false;
+  let sinksClosed = false;
+  let disposal: Promise<void> | undefined;
   let config = Object.freeze({}) as Readonly<RuntimeConfig>;
   const listeners = new Set<ConfigChangeListener>();
   const pending: Readonly<RuntimeConfig>[] = [];
   let notifying = false;
 
   const enabled = (level: LogLevel): boolean =>
-    !disposed &&
+    !sinksClosed &&
     hostLogger !== undefined &&
     LEVEL_RANK[level] >= LEVEL_RANK[config.logLevel ?? DEFAULT_LOG_LEVEL];
 
@@ -102,12 +136,12 @@ export function createRuntime(options: RuntimeOptions = {}): Runtime {
 
   const output: Output = {
     write(value: string | StructuredValue) {
-      if (!disposed && hostOutput) attempt(() => hostOutput.write(value));
+      if (!sinksClosed && hostOutput) attempt(() => hostOutput.write(value));
     },
   };
 
   const forward = <E>(name: string, callback: ((event: E) => void) | undefined, event: E) => {
-    if (disposed || !callback) return;
+    if (sinksClosed || !callback) return;
     try {
       callback(event);
     } catch (cause) {
@@ -138,41 +172,34 @@ export function createRuntime(options: RuntimeOptions = {}): Runtime {
   config = initial.config;
   warnUnknown(initial.unknownKeys);
 
-  let context: RuntimeContext | undefined;
+  const components = createComponentRegistry();
+  const sessionManager = createSessionManager();
+  components.register(MEMORY_DATASTORE_HANDLE, createMemoryDatastore(), "datastore");
+  const session = options.session ?? createSession();
+  sessionManager.adopt(DEFAULT_SESSION_HANDLE, session);
 
   const runtime: Runtime = {
     logger,
     output,
-    get context() {
-      if (!context) {
-        const { session, registry, datastoreManager, sessionManager } = options;
-        const missing = (
-          [
-            ["session", session],
-            ["registry", registry],
-            ["datastoreManager", datastoreManager],
-            ["sessionManager", sessionManager],
-          ] as const
-        )
-          .filter(([, value]) => value === undefined)
-          .map(([name]) => name);
-        if (missing.length > 0) {
-          throw new Error(
-            `Runtime context unavailable; options not supplied: ${missing.join(", ")}`,
-          );
-        }
-        context = {
-          logger,
-          output,
-          reportProgress: runtime.reportProgress,
-          reportMetric: runtime.reportMetric,
-          registry: registry!,
-          datastoreManager: datastoreManager!,
-          sessionManager: sessionManager!,
-          session: session!,
-        };
-      }
-      return context;
+    context: {
+      logger,
+      output,
+      reportProgress: (event) => runtime.reportProgress(event),
+      reportMetric: (event) => runtime.reportMetric(event),
+      registry: components.registry,
+      datastoreManager: components.datastoreManager,
+      sessionManager,
+      session,
+    },
+    registerComponent(handle, component, kind) {
+      if (disposed) throw new Error("Runtime is disposed");
+      components.register(handle, component, kind);
+    },
+    async unregisterComponent(handle) {
+      const component = components.unregister(handle);
+      if (!component) return false;
+      await disposeComponent(handle, component, logger);
+      return true;
     },
     reportProgress(event) {
       forward("onProgress", options.onProgress, event);
@@ -214,9 +241,21 @@ export function createRuntime(options: RuntimeOptions = {}): Runtime {
       };
     },
     dispose() {
+      if (disposal) return disposal;
       disposed = true;
       listeners.clear();
       pending.length = 0;
+      const queue = components.drain();
+      const step = (from: number): Promise<void> | undefined => {
+        for (let i = from; i < queue.length; i++) {
+          const pending = disposeComponent(queue[i][0], queue[i][1], logger);
+          if (pending) return pending.then(() => step(i + 1));
+        }
+        sinksClosed = true;
+        return undefined;
+      };
+      disposal = step(0) ?? Promise.resolve();
+      return disposal;
     },
   };
   return runtime;

@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from "bun:test";
 import type { Logger, Output, RuntimeContext } from "@flowscripter/plugin-api";
 import { createRuntime } from "../index.ts";
+import { createSession } from "../src/session.ts";
 
 function makeLogger() {
   return {
@@ -329,42 +330,24 @@ describe("isolation", () => {
 });
 
 describe("context", () => {
-  const registry = { getAllDatastores: () => [], getAllDataModels: () => [] };
-  const datastoreManager = { getAll: () => [] };
-  const sessionManager = {
-    getAll: () => [],
-    create: async () => session,
-    remove: async () => false,
-  };
-  const session = {
-    inputs: { getAll: async function* () {}, add: async () => {}, remove: async () => false },
-    results: { getAll: async function* () {}, add: async () => {}, remove: async () => false },
-  };
-
-  test("exposes the supplied services and runtime logger/output/reporting", () => {
+  test("exposes in-memory services and runtime logger/output/reporting", () => {
     const onProgress = mock((_e: unknown) => {});
-    const runtime = createRuntime({
-      session,
-      registry,
-      datastoreManager,
-      sessionManager,
-      onProgress,
-    });
+    const runtime = createRuntime({ onProgress });
     const context: RuntimeContext = runtime.context;
-    expect(context.session).toBe(session);
-    expect(context.registry).toBe(registry);
-    expect(context.datastoreManager).toBe(datastoreManager);
-    expect(context.sessionManager).toBe(sessionManager);
     expect(context.logger).toBe(runtime.logger);
     expect(context.output).toBe(runtime.output);
+    expect(Array.from(context.sessionManager.getAll())[0]?.[0]).toBe("default");
+    expect(Array.from(context.sessionManager.getAll())[0]?.[1]).toBe(context.session);
     context.reportProgress({ id: "1", operation: "o", state: "start" });
     expect(onProgress).toHaveBeenCalledTimes(1);
     expect(runtime.context).toBe(context);
   });
 
-  test("throws naming the missing options", () => {
+  test("adopts a supplied session as the default session", () => {
+    const session = createSession();
     const runtime = createRuntime({ session });
-    expect(() => runtime.context).toThrow(/registry, datastoreManager, sessionManager/);
+    expect(runtime.context.session).toBe(session);
+    expect(Array.from(runtime.context.sessionManager.getAll())).toEqual([["default", session]]);
   });
 });
 

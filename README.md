@@ -69,7 +69,10 @@ Generate HTML API Documentation:
 - Component config is returned opaque by `getComponentConfig(handle)`; each component validates its own config.
 - Unknown top-level config keys are ignored with a single warning.
 - Failures in host supplied loggers, outputs, callbacks and listeners never propagate to the caller.
-- `runtime.context` is the `RuntimeContext` passed to components. It requires the `session`, `registry`, `datastoreManager` and `sessionManager` options.
+- `runtime.context` is the `RuntimeContext` passed to components. Each runtime owns in-memory defaults for the registry, datastore manager, session manager and session; nothing is shared between runtimes.
+- The built-in in-memory datastore has the handle `memory` and the session has the handle `default`. A `session` option is adopted as the `default` session.
+- `registerComponent(handle, component, kind)` (`kind` is `datastore` or `dataModel`) and `unregisterComponent(handle)` feed the registry. Handles must be non-empty and unique; duplicates throw.
+- `dispose()` returns a promise. Registered components are disposed in reverse registration order, errors from `dispose()` are logged and do not stop the others, then logging and output are silenced.
 
 ### API
 
